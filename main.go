@@ -18,6 +18,9 @@ var (
 	publicIP      string
 	redisAddr     string
 	redisPassword string
+
+	minPort uint
+	maxPort uint
 )
 
 func init() {
@@ -26,6 +29,8 @@ func init() {
 	flag.IntVar(&port, "port", 3478, "turn server port")
 	flag.StringVar(&redisAddr, "redis", "0.0.0.0:6379", "redis server address")
 	flag.StringVar(&redisPassword, "redis-pass", "", "redis password")
+	flag.UintVar(&minPort, "min-port", 30000, "port range min")
+	flag.UintVar(&maxPort, "max-port", 35000, "port range max")
 	flag.Parse()
 }
 
@@ -39,9 +44,11 @@ func main() {
 		PacketConnConfigs: []turn.PacketConnConfig{
 			{
 				PacketConn: udpListener,
-				RelayAddressGenerator: &turn.RelayAddressGeneratorStatic{
+				RelayAddressGenerator: &turn.RelayAddressGeneratorPortRange{
 					RelayAddress: net.ParseIP(publicIP),
 					Address:      "0.0.0.0",
+					MinPort:      uint16(minPort),
+					MaxPort:      uint16(maxPort),
 				},
 			},
 		},

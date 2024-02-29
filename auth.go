@@ -32,7 +32,6 @@ func (a *Auth) authHandler(username string, realm string, srcAddr net.Addr) ([]b
 	case *net.IPAddr:
 		srcIP = srcAddr.(*net.IPAddr).IP.String()
 	}
-
 	if srcIP == "" {
 		log.Println("unexpected empty ip: ", srcAddr.String())
 		return nil, false
@@ -44,11 +43,11 @@ func (a *Auth) authHandler(username string, realm string, srcAddr net.Addr) ([]b
 		return nil, false
 	}
 	if err != nil {
-		log.Println("redis getdel error:", err)
+		log.Println("redis get error:", err)
 		return nil, false
 	}
 	key := turn.GenerateAuthKey(username, realm, result)
-	log.Println("user:", username, "from:", srcAddr.String(), "pass")
+	log.Println("user:", username, "from:", srcAddr.String(), "authorized")
 	return key, true
 }
 

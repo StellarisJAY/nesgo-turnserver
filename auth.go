@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"path"
+	"time"
 )
 
 type Auth struct {
@@ -41,13 +42,14 @@ func (a *Auth) authHandler(username string, realm string, srcAddr net.Addr) ([]b
 	if errors.Is(err, redis.Nil) {
 		log.Println("user:", username, "from:", srcAddr.String(), "authorization not found")
 		return nil, false
-	}
-	if err != nil {
+	} else if err != nil {
 		log.Println("redis get error:", err)
 		return nil, false
 	}
+	if err := a.cli.Expire(context.Background(), authKey, time.Minute*10).Err(); err != nil {
+		log.Println("set expire time error:", err)
+	}
 	key := turn.GenerateAuthKey(username, realm, result)
-	log.Println("user:", username, "from:", srcAddr.String(), "authorized")
 	return key, true
 }
 
